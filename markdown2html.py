@@ -9,7 +9,6 @@ Usage:
 
 Markdown Syntax Supported:
     - Headings: #, ##, ###, ####, #####, ######
-
 """
 
 import sys
@@ -35,8 +34,6 @@ def parse_markdown_line(line):
         if 1 <= heading_level <= 6:
             content = line[heading_level:].strip()
             return f"<h{heading_level}>{content}</h{heading_level}>"
-
-
     return line
 
 
@@ -62,8 +59,10 @@ def main():
     Main entry point of the script.
     """
     if len(sys.argv) < 3:
-        print("Usage: ./markdown2html.py README.md README.html",
-               file=sys.stderr)
+        print(
+            "Usage: ./markdown2html.py README.md README.html",
+            file=sys.stderr
+        )
         sys.exit(1)
 
     input_file = sys.argv[1]
@@ -73,9 +72,7 @@ def main():
         print(f"Missing {input_file}", file=sys.stderr)
         sys.exit(1)
 
-
     convert_markdown_to_html(input_file, output_file)
-
     sys.exit(0)
 
 

@@ -9,22 +9,24 @@ Usage:
 
 Markdown Syntax Supported:
     - Headings: #, ##, ###, ####, #####, ######
+    - Unordered lists: - Item
 """
 
 import sys
 import os
 
 
-def parse_markdown_line(line):
+def parse_markdown_line(line, in_list):
     """
     Parses a single line of Markdown and converts it to HTML.
-    Supports only heading syntax (#).
+    Supports heading syntax (#) and unordered lists (-).
 
     Args:
         line (str): A single line of Markdown.
+        in_list (bool): Indicates if we are currently inside a list.
 
     Returns:
-        str: The converted HTML line, or the original line if no match.
+        tuple: (str, bool) The converted HTML line and updated in_list state.
     """
     if line.startswith("#"):
         heading_level = 0
@@ -33,8 +35,19 @@ def parse_markdown_line(line):
 
         if 1 <= heading_level <= 6:
             content = line[heading_level:].strip()
-            return f"<h{heading_level}>{content}</h{heading_level}>"
-    return line
+            return f"<h{heading_level}>{content}</h{heading_level}>", in_list
+
+    elif line.startswith("- "):
+        content = line[2:].strip()
+        html_line = f"<li>{content}</li>"
+        if not in_list:
+            html_line = "<ul>\n" + html_line
+        return html_line, True
+
+    elif in_list:
+        return "</ul>", False
+
+    return line, in_list
 
 
 def convert_markdown_to_html(input_file, output_file):
@@ -48,10 +61,14 @@ def convert_markdown_to_html(input_file, output_file):
     with open(input_file, 'r', encoding='utf-8') as md_file:
         lines = md_file.readlines()
 
+    in_list = False
     with open(output_file, 'w', encoding='utf-8') as html_file:
         for line in lines:
-            html_line = parse_markdown_line(line.strip())
-            html_file.write(html_line + "\n")
+            html_line, in_list = parse_markdown_line(line.strip(), in_list)
+            if html_line:
+                html_file.write(html_line + "\n")
+        if in_list:
+            html_file.write("</ul>\n")
 
 
 def main():
